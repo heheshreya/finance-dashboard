@@ -51,11 +51,20 @@ df = get_data(stock)
 latest = df.iloc[-1]
 prev_close = df.iloc[-2]['Close']
 
-# Fetch company info
-ticker_info = yf.Ticker(stock)
-company_name = ticker_info.info.get('longName', stock)
-company_summary = ticker_info.info.get('longBusinessSummary', "No summary available.")
-
+# --- Safe Company Info Fetch ---
+try:
+    ticker_info = yf.Ticker(stock)
+    # This .info line is the one causing the RateLimitError
+    company_name = ticker_info.info.get('longName', stock)
+    company_summary = ticker_info.info.get('longBusinessSummary', "No summary available.")
+    
+    st.subheader(f"About {company_name}")
+    with st.expander("Read Business Summary"):
+        st.write(company_summary)
+except Exception:
+    # If Yahoo blocks us, just show the Ticker name and move on
+    st.subheader(f"About {stock}")
+    st.info("Company summary temporarily unavailable due to Yahoo Finance rate limits.")
 # Display it in the app
 st.subheader(f"About {company_name}")
 with st.expander("Read Business Summary"):
