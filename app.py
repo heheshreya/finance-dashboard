@@ -51,25 +51,24 @@ df = get_data(stock)
 latest = df.iloc[-1]
 prev_close = df.iloc[-2]['Close']
 
-# --- Safe Company Info Fetch ---
+# 1. Set a default value first (Safety first!)
+company_name = stock 
+
+# 2. Try to get the real name from Yahoo
 try:
     ticker_info = yf.Ticker(stock)
-    # This .info line is the one causing the RateLimitError
+    # If this line fails, the code jumps straight to 'except'
     company_name = ticker_info.info.get('longName', stock)
     company_summary = ticker_info.info.get('longBusinessSummary', "No summary available.")
     
     st.subheader(f"About {company_name}")
     with st.expander("Read Business Summary"):
         st.write(company_summary)
-except Exception:
-    # If Yahoo blocks us, just show the Ticker name and move on
-    st.subheader(f"About {stock}")
-    st.info("Company summary temporarily unavailable due to Yahoo Finance rate limits.")
-# Display it in the app
-st.subheader(f"About {company_name}")
-with st.expander("Read Business Summary"):
-    st.write(company_summary)
 
+except Exception:
+    # If Yahoo blocks us, we still have the default 'company_name' from step 1
+    st.subheader(f"About {company_name}")
+    st.info("Company summary temporarily unavailable due to Yahoo Finance rate limits.")
 # 4. KPI Header
 st.title(f"🔍 {stock} Analysis")
 kpi1, kpi2, kpi3, kpi4 = st.columns(4)
