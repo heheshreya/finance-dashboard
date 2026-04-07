@@ -21,6 +21,7 @@ buy_price = st.sidebar.number_input("Average Buy Price", min_value=0.0, value=0.
 @st.cache_data
 def get_data(ticker):
     df = yf.download(ticker, period="2y")
+    df.columns = df.columns.droplevel(1)
     # Check if we got data back
     if df.empty:
         return pd.DataFrame() # Return empty if nothing found
